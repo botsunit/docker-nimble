@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+if [ -s /etc/nimble/nimble.conf ]; then
+  exec nimble --conf-dir=/etc/nimble --log-dir=/var/log/nimble
+else
+  # Need username and password to register
+  if [ -z "$WMSPANEL_USER" ]; then
+    >&2 echo "Please set environment variables WMSPANEL_USER and WMSPANEL_PASS to register server."
+    exit 1
+  fi
+
+  ARGS="--run-as-normal-user"
+
+  if ! [ -z "$WMSPANEL_SLICES" ]; then
+    ARGS="--slices=$WMSPANEL_SLICES"
+  fi
+
+  cp /etc/nimble.conf.default /etc/nimble/nimble.conf
+
+  if ! nimble_regutil $ARGS --apply-rules-conf \
+     -u "$WMSPANEL_USER" -p "$WMSPANEL_PASS"; then
+    if ! nimble_regutil $ARGS -u "$WMSPANEL_USER" -p "$WMSPANEL_PASS"; then
+      >&2 echo "Failed to register server!"
+      rm -f /etc/nimble/nimble.conf
+      exit 1
+    fi
+  fi
+fi
