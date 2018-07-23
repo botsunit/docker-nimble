@@ -1,6 +1,6 @@
 FROM ubuntu:xenial
 
-ENV NIMBLE_VERSION=3.4.3-9
+ENV NIMBLE_VERSION=3.5.0-5
 
 ## Install nimble and move all config files to /etc/nimble.conf
 ##
